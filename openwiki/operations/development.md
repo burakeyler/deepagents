@@ -5,7 +5,7 @@ description: Package-scoped uv and Make workflows, repository fan-out validation
 tags: [development, ci, monorepo, uv, make, release-please]
 verified:
   - by: openwiki/0.4.2
-    at: 2026-09-09T08:05:37.706Z
+    at: 2026-09-13T08:05:04.998Z
 sources:
   - id: openwiki-source-37e02a57730563a4b4de1690
     resource: repo://.github/LAYOUT.md
@@ -31,13 +31,17 @@ sources:
     resource: repo://libs/deepagents/Makefile
   - id: openwiki-source-fb60ee46c55b974b8341651c
     resource: repo://libs/DEVELOPMENT.md
+  - id: openwiki-source-be7f6aa28551fac7310db803
+    resource: repo://libs/evals/Makefile
   - id: openwiki-source-49fbcc45434b619b68220bf9
     resource: repo://libs/Makefile
   - id: openwiki-source-667fd72e0b93552f91d3888d
     resource: repo://libs/partners/AGENTS.md
+  - id: openwiki-source-ba53b2ab73965694b2510a58
+    resource: repo://libs/talon/Makefile
   - id: openwiki-source-482fa4ca84f42b04ba025fc1
     resource: repo://release-please-config.json
-generated: { by: "openwiki/0.4.2", at: "2026-09-09T08:05:37.706Z" }
+generated: { by: "openwiki/0.4.2", at: "2026-09-13T08:05:04.998Z" }
 ---
 
 # Development, CI, and Releases
@@ -75,6 +79,8 @@ Use `make help` inside the package to discover its actual targets. The Makefile 
 | `make type`, `make coverage`, `make test_watch` | Focused package-specific type, coverage, and watch entrypoints. |
 
 Package Makefiles invoke tools through `uv run`. For example, `deepagents` exports `UV_FROZEN = true`, causing commands to fail when the lockfile is stale instead of silently updating it. Do not infer that every package uses precisely the same groups or flags—consult its Makefile.
+
+Package-specific targets can include additional validation. `libs/talon` runs its Node-based WhatsApp bridge tests before its Python test suite. In `libs/evals`, `make evals MODEL=<id>` requires a model identifier and sends the eval tests to the `deepagents-evals` LangSmith suite; its lint target also verifies that the generated eval catalog is current. See [Run Evals](../workflows/run-evals.md) for the evaluation workflow and credentials.
 
 ```mermaid
 flowchart TD
@@ -142,8 +148,8 @@ The manifest is the current released-version baseline, not a source-version file
 | --- | --- |
 | `libs/deepagents` | `0.7.13` |
 | `libs/acp` | `0.0.11` |
-| `libs/code` | `0.1.67` |
-| `libs/talon` | `0.0.7` |
+| `libs/code` | `0.1.68` |
+| `libs/talon` | `0.0.8` |
 | `libs/partners/daytona` | `0.0.8` |
 | `libs/partners/modal` | `0.0.6` |
 | `libs/partners/runloop` | `0.0.7` |

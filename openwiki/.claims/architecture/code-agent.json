@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:2a99ed137478555ec2efb3c96e348559e67345781bdb5237a8d1270b0879d943",
+  "pageVersion": "sha256:b68ba57eac1735eaaae64b3b431188983aa14f7b8072705bb9eb8a6c694e4e7b",
   "claims": [
     {
       "id": "claim_d463e7db72ac47529b1cd7e9f1097352",
@@ -258,11 +258,15 @@
     },
     {
       "id": "claim_7e99e5b6d7884148bdf73d3d9215a9e4",
-      "statement": "RemoteAgent stores configured workspace policy and fingerprint, binds a thread through the server workspace endpoint on first use, and requires HTTP thread registration separately because checkpoint persistence can survive a server restart without a live thread row.",
+      "statement": "RemoteAgent requires configured workspace cwd before it can obtain a thread descriptor, sends configured workspace policy and fingerprint only as a pair (or defers both to an external server), lazily binds and caches the server-returned descriptor per thread, and commits a workspace switch to local state only after the binding request succeeds.",
       "evidence": [
         {
-          "resource": "repo://libs/code/deepagents_code/client/remote_client.py#L792-L952",
-          "version": "repo-lines-v1:sha256:4e79aab3904b1648de4a74d82de6f7c72bcc9c7a779a38947bc92784116c21a7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiZjlmZGQwMTk2MDIwNWMwNzQ2N2U3MDJjNmE1YmRhZGJkMzFlZmE3NDU4NmY0M2Q5NjZkYmJiOGMwYjg2ZDY5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJiMjljNTI0NDM0YzAwOWFhZjBkN2ZlOWUyZmZlNzIyYjE3MGNmOGViMWM4YzE1NzVlNGUzYmQ1MWU5MjZjNzFiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxNWFkMDg2MjcyYWM0Nzg3YzI3N2IyYzFlMzlmOTljMDgxZGY4MzM2ZWZjZmFkOTFjZjgyNjQ0Y2QzYmY4YTZlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxMWJkMGNmYmFhYmM0NDI1ZjI4NDUxMjQ3NTliMmFlNTIxNTBiMmM2MTBjMjNhYzU0NDE2YWI0YzU5ODMyYzc0In0"
+          "resource": "repo://libs/code/deepagents_code/client/remote_client.py#L792-L922",
+          "version": "repo-lines-v1:sha256:acc3c55203a946ea24f9309b7154393e8f9c0011a6331a0fc7e58da83cb45e5c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiZjlmZGQwMTk2MDIwNWMwNzQ2N2U3MDJjNmE1YmRhZGJkMzFlZmE3NDU4NmY0M2Q5NjZkYmJiOGMwYjg2ZDY5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJjZWVlZjcwZGM3ZjJhZWZmOWY4OWJmNTg2YjgyM2FmOGY4ZTc0Y2NhYmEzYWNkNzViYjc0M2JiNDQ0MTU3ODg3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxNWFkMDg2MjcyYWM0Nzg3YzI3N2IyYzFlMzlmOTljMDgxZGY4MzM2ZWZjZmFkOTFjZjgyNjQ0Y2QzYmY4YTZlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJiZjhiMTIyNGZiNjlhOGJjNGNmMTlhY2UwNzYyZDNlMGE2NmY1ZmEzYjU4NWM5ZmRjMmI0MTY2N2QzY2EzZDg4In0"
+        },
+        {
+          "resource": "repo://libs/code/tests/unit_tests/test_remote_client.py#L828-L955",
+          "version": "repo-lines-v1:sha256:6206d3332e1c8b1b6f3fbba48054c35ac979e99ed22512006e78dcaf68f91af1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlZGQyNDhkZGQ1MDcyZDhkNDQyNDFkODQ0OWU4YWU2YjA3M2U3NmRhZTkzNDBiNzVlNjE5ZDY4NzM0NzVhMDc3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1NTAzMmU5NjRkMDkzMjM1MWU1ZDE4NTI2OTI4MWIxNzFhM2EwOWIwOGIyODZlNjYxZWE0NzAzMjNjODJlYjRkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4Y2M0YTdkMWNjNzk2YWJhM2U0NjcyMzMyN2Y1MTdlOWY4MTE5ODJkMjUwZjA3MDI5ODZlNGI1NzY0YWQ5NTg5IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxNjZmZDVjZTIyNGFkNTY3MWRmNjkwOGI1MDgwNjIwODA0ZTg1MmRhOWYzMDc0Nzc1NmM1NmM1OWY4NjUyMWMwIn0"
         }
       ]
     },
@@ -383,10 +387,28 @@
           "version": "repo-lines-v1:sha256:9a4859d8e893f697e5f5eb5b654ee06471a3b3b615c50d8f3ec2adedf5c9d539:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjM2QxMzIwN2ViMjFjMmRjMmQzZDg2YjNkNTIxMzFkYTY2M2Q4YjM5NDVmMWIzY2IwMWMzNWE4NGIyNjNmZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQzODlmMmZhN2Q5YzQwY2FiMjU4ODQ0M2QwYzFlOTRkNzMzNDQ1MjQwNGIwYzhhZDgzMDQ3NGYxYTg4MWRmODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ1Njk1ZmVhZjEyOTUzOWU1MGM1Njk5NGUzYTUxZTVmZTFlY2I4NmMzMzhkODUxNTQ0NmZmY2RiNDU1NmIwZTgifQ"
         }
       ]
+    },
+    {
+      "id": "claim_1dafd0fa9b074f1cab25f7264dd1a644",
+      "statement": "RemoteAgent's `aoffload` idempotently registers the HTTP thread record before its first offload request, because a dev-server restart can leave persisted checkpoint state without a live thread row; ordinary `astream` does not perform this registration.",
+      "evidence": [
+        {
+          "resource": "repo://libs/code/deepagents_code/client/remote_client.py#L390-L400",
+          "version": "repo-lines-v1:sha256:c8d3945b2aee22ac3853d5046fd1e58fe3de2d66ec753e017b0a3ad1d51876ba:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwNWVmZDRlMzkzZTQ4ZjEzYmJiNjVhYTYxMmM2NGYyZGU5MWE2YTYxOWM5NDMwMzdkMDVkZjM3NGNlMDM2MWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyZTdkNmFlNWM1YTk3ZDA1MjI0MWNlYzk5YmE2MDBiMTA3OWM1ZDJkOTYzNjk0MmIwNGJlNGY2MDFhMTRlNWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFiM2ZjNjZkY2UzMjUzMzU3MjFjZDBhZjFlZjA1MjM4MTU4NzQxYTk4OTQ4NDgzYWFjODc0NzU0Nzg5ODNkYWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY4Y2NlYjQ3ODU3OGIxYTBhMmFiYzg3YmE4ZmJkNTAxYTE2NWYwMjcwMjEwNTM3NzQ2NjUyODlmMTNhZDcxOTUifQ"
+        },
+        {
+          "resource": "repo://libs/code/deepagents_code/client/remote_client.py#L924-L965",
+          "version": "repo-lines-v1:sha256:dbd9886817043a633807bd3c09f6b1563aa22ccc706a01360ed3ebcef9d0cd1f:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkMDI0ZTkyNTgwYjZkNDFlZGU2MzlhMDZjZGQxNzJkZWI2ZWE0OGMzNmMwYzY2NDZmY2ZkY2RkMmM3MDZjYTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyOWM1MjQ0MzRjMDA5YWFmMGQ3ZmU5ZTJmZmU3MjJiMTcwY2Y4ZWIxYzhjMTU3NWU0ZTNiZDUxZTkyNmM3MWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVjMDU0YjY3NWM1ODc2MGRkZjA0ODM3NmZhODYzOGZkZTVlNzY1OGM5MzIwZWVjMDIzZTJiNDAxZmNiNzg4ZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjExYmQwY2ZiYWFiYzQ0MjVmMjg0NTEyNDc1OWIyYWU1MjE1MGIyYzYxMGMyM2FjNTQ0MTZhYjRjNTk4MzJjNzQifQ"
+        },
+        {
+          "resource": "repo://libs/code/tests/unit_tests/test_remote_client.py#L1015-L1049",
+          "version": "repo-lines-v1:sha256:beb37bbbfff654808200516b1515a2a861bbb096b39d5ffea8afb39af69ebc7f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiNjFlMjAwN2E5NzhiOTk2NWE4YTRjZDM1NDE3MDAxNzFmZjM5OTM4ZDk0ZmY4ZTkyN2ExOTM5NDljNzU5ZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY1NGZlOTM1NGJhMzdkOWNjNTZhNTBhNzZkMWY4ZTFkZDY2ZGZjNTZlNGRjYTRlMmE2MGUxOTlkZWM0ZjcxNDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMyYzk3NmI2ZWNhNGQ5M2UzMzM0Njg2NjAzYjhlMTRiY2QxNzAxYWU3YWY3MGZkYzI1N2NkOThjZTljYzc3NWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIxMjg5NWUyYmYwYjY4ODA4MzczMzQwOTgyNmJlZTA1ZWQ2MWU4MTI0YzhlZDM3YjdjMzg5MzMyMTZlZGI5YjIifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.4.2",
-    "at": "2026-09-09T08:05:37.706Z"
+    "at": "2026-09-13T08:05:04.998Z"
   }
 }

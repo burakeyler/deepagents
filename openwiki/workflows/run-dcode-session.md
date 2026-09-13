@@ -36,12 +36,14 @@ sources:
     resource: repo://libs/code/README.md
   - id: openwiki-source-6e002fd7a8a5dcb5186cae05
     resource: repo://libs/code/tests/integration_tests/test_compact_resume.py
+  - id: openwiki-source-71b99fa3b7baf6ea6b10c6fc
+    resource: repo://libs/code/tests/integration_tests/test_offload_server_side.py
   - id: openwiki-source-c8dacdfd6192dd22d24a9362
     resource: repo://libs/code/tests/integration_tests/test_pending_work_recovery.py
+generated: { by: "openwiki/0.4.2", at: "2026-09-13T08:05:04.998Z" }
 verified:
   - by: openwiki/0.4.2
-    at: 2026-09-09T08:05:37.706Z
-generated: { by: "openwiki/0.4.2", at: "2026-09-09T08:05:37.706Z" }
+    at: 2026-09-13T08:05:04.998Z
 ---
 
 # Run a dcode Session
@@ -134,7 +136,7 @@ flowchart TD
     Persist --> Run["Stream graph with binding context"]
     Run --> Offload{"User requests offload"}
     Offload -- no --> Checkpoint["Checkpoint normal turn"]
-    Offload -- yes --> Idle{"Thread idle and no pending work"}
+    Offload -- yes --> Idle{"Thread idle or error and quiescent"}
     Idle -- no --> Offload409["Return 409 no commit"]
     Idle -- yes --> Compact["Use bound runtime offload operation"]
     Compact --> Hook{"Hook requests response"}
@@ -145,11 +147,13 @@ flowchart TD
 
 *Workspace binding makes the server authoritative for a thread's execution policy; offload operates only on a quiescent bound thread.*
 
-`/offload` is a server operation, not a client filesystem action. It reads and hydrates the checkpoint, requires an idle registered thread with no pending graph work, checks its workspace binding, and uses the matching runtime's offload operation. The route rejects concurrent, interrupted, unregistered, changed, or pending-work threads with 409 before committing. It permits only the state channels declared by `OffloadStateUpdate`, refusing message writes that could overwrite concurrent content.
+`/offload` is a server operation, not a client filesystem action. It reads and hydrates the checkpoint, requires a registered thread whose status is `idle` or `error`, and separately requires no `next`, tasks, or interrupts. Allowing `error` permits recovery after a failed turn, but a pending node still produces 409. The route also checks the durable workspace binding, runs the matching runtime's offload operation, and rejects a thread that advanced while compaction ran. It permits only the state channels declared by `OffloadStateUpdate`, refusing message writes that could overwrite concurrent content.
 
-Offload hook interrupts are resumable HTTP rounds, not a suspended server coroutine: the client repeats the same operation ID with accumulated hook responses, and the server re-executes while replaying answered calls. The operation reserves summary state and commits archive linkage carefully; a failed state write is read back to distinguish unchanged, advanced, and indeterminate outcomes. Model selection for offload is restored from the checkpoint/server configuration, not accepted from request context, preventing a loopback client from choosing the credentialed summarizer's endpoint.
+The HTTP boundary is explicit about failure: malformed bodies return 422, conflicts return 409 with no commit, an unavailable runtime returns 503, and an indeterminate write or unexpected server fault returns 500. An empty checkpointed thread completes with an unchanged `empty` result. Each operation has a thread-and-operation-ID key; concurrent reuse is refused, completed/cancelled outcomes are retained briefly to close cancellation races, and `POST /dcode/threads/{thread_id}/offload/{operation_id}/cancel` waits for a terminal `cancelled` or `finished` outcome. When custom-route authentication is enabled in a deployment, these routes are protected by the same configured authentication middleware as graph routes.
 
-This design keeps compaction and archive I/O on the backend that the agent actually uses. A resumed thread on a fresh server can therefore read its persisted archive through its own backend.
+Offload hook interrupts are resumable HTTP rounds, not a suspended server coroutine: the client repeats the same operation ID with accumulated hook responses, and the server re-executes while replaying answered calls. It caps fulfillment at 32 distinct hook rounds. Before archive I/O, the operation commits its allowlisted summary/cost state against the checkpoint it read; if the checkpoint advanced, it discards the computed summary rather than branch from stale state. It then appends the archive and links its path in checkpoint state, rolling back a confirmed-unlinked append and reporting an indeterminate result if it cannot verify the link. Model context is restored from checkpoint/server configuration rather than accepted from the request context, preventing a loopback client from choosing the credentialed summarizer endpoint.
+
+This design keeps compaction and archive I/O on the backend that the agent actually uses. A resumed thread on a fresh server can therefore read its persisted archive through its own backend; raw messages remain checkpointed while the summarization event advances the context cutoff.
 
 ## Configuration, extension, and hook boundaries
 
@@ -167,7 +171,7 @@ This design keeps compaction and archive I/O on the backend that the agent actua
 | Server scaffolding, env serialization, binding, cleanup | `client/launch/server_manager.py` | `test_server_manager.py` plus smoke test |
 | Workspace validation, runtime selection, drift | `workspace.py`, `server_graph.py`, `offload_api.py` | binding and conflict tests |
 | Stream conversion and interrupt resume | `remote_client.py`, TUI adapter | stream and approval-resume tests |
-| Offload persistence and restart | custom offload route and backend | `test_compact_resume.py` |
+| Offload persistence, races, authentication, and restart | custom offload route and backend | `test_offload_server_side.py`, `test_compact_resume.py` |
 | Abandoning interrupted graph work | remote client recovery path | `test_pending_work_recovery.py` |
 
-The compaction-resume integration test creates persistent state on one temporary server, runs `/offload` through a fresh production-style app with no client-owned backend, and verifies a later server can read the archive. The pending-work recovery test establishes a graph paused before a tool node, abandons it through `RemoteAgent`, and verifies the tool never executes while an error `ToolMessage` records cancellation. These tests protect the core invariants: server-owned persistence and no execution of abandoned pending work.
+The server-side offload integration test uses a production-style app with `backend=None`, verifies that `/offload` leaves the message sequence intact while advancing the summarization cutoff, and reads the generated archive through the agent's own `read_file` tool. Its race case starts a real turn while summary generation is gated: offload may commit or conflict, but the concurrent message must survive. It also verifies that configured route authentication rejects an unauthenticated custom-route request and accepts the same request with a valid credential. The compaction-resume test creates persistent state on one temporary server, runs `/offload` through a fresh production-style app, and verifies a later server can read the archive. The pending-work recovery test establishes a graph paused before a tool node, abandons it through `RemoteAgent`, and verifies the tool never executes while an error `ToolMessage` records cancellation. These tests protect server-owned persistence, authentication, and the rule that abandoned or concurrent work must not be silently overwritten or executed.

@@ -3,9 +3,6 @@ type: architecture-overview
 title: Monorepo Architecture Overview
 description: System-level map of the independently versioned Deep Agents packages, their public entry points, dependency directions, and the boundaries between the SDK, dcode, ACP, Talon, evals, and partner integrations.
 tags: [architecture, deep-agents, langchain, langgraph, monorepo, dcode]
-verified:
-  - by: openwiki/0.4.2
-    at: 2026-09-09T08:05:37.706Z
 sources:
   - id: openwiki-source-5e59f90a38f5bdf9ed76984b
     resource: repo://.release-please-manifest.json
@@ -43,7 +40,10 @@ sources:
     resource: repo://libs/talon/README.md
   - id: openwiki-source-23775c3de52f3ab95a13cb8b
     resource: repo://README.md
-generated: { by: "openwiki/0.4.2", at: "2026-09-09T08:05:37.706Z" }
+generated: { by: "openwiki/0.4.2", at: "2026-09-13T08:05:04.998Z" }
+verified:
+  - by: openwiki/0.4.2
+    at: 2026-09-13T08:05:04.998Z
 ---
 
 # Monorepo Architecture Overview
@@ -111,6 +111,21 @@ Tool visibility is not authorization. A missing tool normally indicates middlewa
 
 `libs/` is a monorepo of independently versioned packages. The release manifest tracks released package versions separately, including the SDK, ACP, Code, Talon, and each sandbox/provider partner. Package manifests make the dependency direction explicit: product, evaluation, and host packages consume the SDK rather than the SDK depending on them.
 
+```mermaid
+flowchart TD
+  Code["Deep Agents Code"] --> SDK["deepagents SDK"]
+  ACP["deepagents ACP"] --> SDK
+  Talon["deepagents Talon"] --> SDK
+  Talon --> Code
+  Evals["deepagents evals"] --> SDK
+  Evals --> Code
+  Clients["Terminal, editors, channels, and CI"] --> Code
+  Clients --> ACP
+  Clients --> Talon
+  Clients --> Evals
+```
+The package diagram shows direct monorepo package dependencies and the product-facing surfaces; `evals` is validation infrastructure, not a serving dependency.
+
 | Package | Public entry point and ownership boundary |
 | --- | --- |
 | `deepagents` | Core SDK for builders. Its main public entry point is `create_deep_agent`; reusable harness work belongs in its middleware, backends, profiles, and graph construction. |
@@ -130,7 +145,7 @@ Tool visibility is not authorization. A missing tool normally indicates middlewa
 
 ### Talon lifecycle and security boundary
 
-Talon owns the process lifecycle around an SDK graph, not a different agent runtime. `DeepAgentRuntime.start()` resolves subagents and constructs its SDK graph. Each `invoke()` requires that graph to be started, refreshes runtime tools, establishes request-scoped authorization, history, cron, graph, and background-result context, then resets those contexts in a `finally` block. `stop()` cancels background work before releasing the graph and closing a closeable checkpointer.
+Talon owns the process lifecycle around an SDK graph, not a different agent runtime. `DeepAgentRuntime.start()` resolves subagents, loads the approval snapshot, and constructs the graph. Each `invoke()` requires a started graph, refreshes runtime tools, and—while holding its tool lock—rebuilds the graph if the approval snapshot changed. It then establishes request-scoped operator-approval, authorization, message-handler, history, cron-origin, graph, and background-result contexts, and resets those contexts in a `finally` block. `stop()` only releases the graph and a closeable checkpointer after background cancellation succeeds; if a worker outlives cancellation, it raises and deliberately leaves resources open rather than closing a checkpointer under active writes.
 
 Talon is alpha software and does not provide production-grade human approval policy, channel administrator controls, sandbox execution isolation, or multi-tenant boundaries. Treat a channel user as having direct access to the operator's agent, credentials, MCP tools, and local-host resources. This is a deployment constraint, not an SDK permission guarantee.
 

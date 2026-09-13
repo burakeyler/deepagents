@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:a99fce307c6bd673b1f28708a93bd8f734339d848b4b3dd289bf6064bb26422e",
+  "pageVersion": "sha256:aa9bc0a46c2f963baa207355b430a6533de3d90f4ba0aca9d572882db322edf0",
   "claims": [
     {
       "id": "claim_a64f733f2f92431a84333168dbfe4826",
@@ -62,11 +62,11 @@
     },
     {
       "id": "claim_4a0fef756f594209901908160d4144b9",
-      "statement": "The release-please-managed manifest records independent current release baselines: libs/deepagents 0.7.13, libs/acp 0.0.11, libs/code 0.1.67, libs/talon 0.0.7, daytona 0.0.8, modal 0.0.6, runloop 0.0.7, vercel 0.0.2, and quickjs 0.3.7.",
+      "statement": "The release-please-managed manifest records independent current release baselines: libs/deepagents 0.7.13, libs/acp 0.0.11, libs/code 0.1.68, libs/talon 0.0.8, daytona 0.0.8, modal 0.0.6, runloop 0.0.7, vercel 0.0.2, and quickjs 0.3.7.",
       "evidence": [
         {
           "resource": "repo://.release-please-manifest.json#L1-L10",
-          "version": "repo-lines-v1:sha256:5e11592e78365e8b4ff0a5c578e99b98e334ddcf948889bea3461b1fb5b8a734:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyNjlhNWVjYTI2YzRjODcxYTg1ZmE1ZDU0MmMzZGIwMGQ1NTg1OTE3NmEyZjczY2Y4NjRlMjdhYWFkZjMzNTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+          "version": "repo-lines-v1:sha256:238a728d20b545d5309ef11af98e94cdae485e9018d26aecb50991c2d4864be2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyNjlhNWVjYTI2YzRjODcxYTg1ZmE1ZDU0MmMzZGIwMGQ1NTg1OTE3NmEyZjczY2Y4NjRlMjdhYWFkZjMzNTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
         }
       ]
     },
@@ -299,10 +299,28 @@
           "version": "repo-lines-v1:sha256:3cbc8ca5aef2cc6f2dacc6e986c472d823b9e864857b30dafaa9989bc10842f5:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjEwZGQxZGEwMDhiMDdhZmZhMzViYmUyMTdhYWU4Zjg1ZDUwNDBiZWYxYjk2YjJkOTdlODJlOGExMzY2ZDZhMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGY2MGM5N2QwMGZmNDIwZDYwN2U1ZmVlNTdhMTljMzNkNjJkZTJiMThlMzI2ZjdjM2U3NGYxNDA5OTI4MGMxMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGZiMjk5ZDQyNmRhZTc0MmFmOWViYzY2NzFmYmE5ZTI1ODkwMzZiN2E2ZjBlOTdiMmVkOTY3NTI2YWI4MTQwMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWM0NmU5OTc2MjMxNDMxYzY5Yzk1MTk2YzgwMjRkOTUzNTMzOGI5MjFmNzg2MmE4MzAzOGVhNWY3OGU5ZDRkYiJ9"
         }
       ]
+    },
+    {
+      "id": "claim_062aa10ee7424a3b9515ce7212fff683",
+      "statement": "Package-specific Make targets add distinct validation: Talon's Python test target depends on Node-based WhatsApp bridge tests, while the evals target requires MODEL, records eval tests in the deepagents-evals LangSmith suite, and lint checks the generated eval catalog.",
+      "evidence": [
+        {
+          "resource": "repo://libs/evals/Makefile#L148-L157",
+          "version": "repo-lines-v1:sha256:9b9361803a3e5e222912afd0c157b5a9d239eb53823b3432bb528f251073d16d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3ZWM2OTdiMDg2YTJiZGE3ZDlhZmRkYmQ1NTJhZmY3YTMxYTlkNDg0MDAwYmJmODFmNjM1N2ZlOTkwOTdiOGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1ZjAyNWU3OTU2OGE0YTlhZDBlMTc2NjQwYmM3NjBlZmY2ZWU2MTU0NzYzOWUxYjhjODYxMGNiMWQyYTgwMzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI5MmUzOTIwY2ZkYjg3ZTNkZTg1MzU0NWZiMzkwMTQ2ZWJkMTI0ZjkwYzQ3ZGRjM2Q3ZTE0OWViN2UxYmZkOGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkMmE5ODNiYzEwNGYzOTEyMzM2N2ZkYzNhMTgwM2EzZTU4NjgyNTRjZTQxYjM5OWU2OTI4Y2U4NTQ3NDcwNWMifQ"
+        },
+        {
+          "resource": "repo://libs/evals/Makefile#L16-L21",
+          "version": "repo-lines-v1:sha256:76cd1ad91ab90bda3658a9d055984dd0d9e8b8002adf378e48fef66c57f37de6:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWJhYzRkYjI1NjRmNjA5NGYxZWY4ODkwMmE3M2JkMWI5YzM2NzIyODcyMDgyMTdmNmViYTVjNjI3ZGM5MzgzMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2NlNGJiYTJmNmFhYTc1NzA0MDgxZTFlNzI0Yzc2ZWJmODgwMzJmODM5NTBkZDQ2YjcwY2FjMmUwMjE4YjhlOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzUyNWNhMjFiYThiMWYyMTEyOWU1MDQ0ZTdjY2MzZTdhMjA5OTc1MGY1MzhkZTk0NjNkMTFkMjM4NmMxNDUyMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWEwODQ2MzFjYWVlNWY3Y2MyNmMyY2Y1MzZhMzg2M2FiN2I1ODM2YjUwMWNjMGViMDE1MTI4ZGUxZDA3ZWMyMiJ9"
+        },
+        {
+          "resource": "repo://libs/talon/Makefile#L12-L18",
+          "version": "repo-lines-v1:sha256:34ed70f8bf0d63ccae16bbf98d6d0438a914e6c9511e88db6d324410198f29c9:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzMyMTg5ZTJkYjkzM2I2YTJhZDk2YjRkZTA4NzdkMTU1ODljNTgyYzNiNGMzYmVkY2Q0NjUwMDRjNDg4YjlkOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2U2MjlhYzU2NDViNmIyZjBkMTI2NjBjOGI1MDQyODFkYzNiODYzYjliNjI1NGJhNjZiN2ZmZDkxODYxZGQ3NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjk0MTUxN2YzNjI4YmQ0ZWExN2ZkNTBhMmZiNzVjNWQwYjJlYzVhMmVmZjYyZjlhMThlMGNjYjE2YzgxMzk3YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGJkZDY4MTAyNGVkOGRmNzI5NTg3YmRkN2IxNmZjMjdhZWMwOTY0YmVlMTQ3Nzc0ODdlODY0ZDRlODdmOTA5ZCJ9"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.4.2",
-    "at": "2026-09-09T08:05:37.706Z"
+    "at": "2026-09-13T08:05:04.998Z"
   }
 }

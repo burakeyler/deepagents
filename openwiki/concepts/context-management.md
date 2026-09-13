@@ -3,9 +3,6 @@ type: context-management concept
 title: Context Management and Offload
 description: How deepagents and dcode control model-visible context through result eviction, summarization, recoverable artifacts, local context, and server-owned offload. These mechanisms are distinct from durable checkpoint and memory lifecycle.
 tags: [context-management, summarization, compaction, eviction, offload, middleware, tool-results, conversation-history]
-verified:
-  - by: openwiki/0.4.2
-    at: 2026-09-09T08:05:37.706Z
 sources:
   - id: openwiki-source-05106e66a949150d557266a2
     resource: repo://libs/code/deepagents_code/agent.py
@@ -33,14 +30,17 @@ sources:
     resource: repo://libs/deepagents/deepagents/middleware/_overflow_clip.py
   - id: openwiki-source-f763e99e439a1356866a7aa4
     resource: repo://libs/deepagents/deepagents/middleware/summarization.py
-generated: { by: "openwiki/0.4.2", at: "2026-09-09T08:05:37.706Z" }
+generated: { by: "openwiki/0.4.2", at: "2026-09-13T08:05:04.998Z" }
+verified:
+  - by: openwiki/0.4.2
+    at: 2026-09-13T08:05:04.998Z
 ---
 
 # Context Management and Offload
 
-Long-running agent threads have separate pressures: injected prompt material consumes every request, a tool can return excessive text, and conversation history can exceed a provider window. The SDK manages the latter two with **large-tool-result eviction**, **summarization**, and an overflow-only tail-clipping fallback. dcode adds local-environment context, diagnostics, hook-aware automatic compaction, and a server-owned `/offload` operation.
+Long-running agent threads have separate pressures: injected prompt material consumes every request, a tool can return excessive text, and conversation history can exceed a provider window. The SDK manages the latter two with **large-tool-result eviction**, **summarization**, and an overflow-recovery tail-clipping fallback. dcode adds local-environment context, diagnostics, hook-aware automatic compaction, and a server-owned `/offload` operation.
 
-These controls change what a model receives; they are **not durable memory** and do not delete the raw conversation checkpoint. Summarization stores an event that reconstructs an effective request history, while archives are a best-effort recovery aid in the SDK path. Memory files such as `AGENTS.md` are separately injected prompt content, not a substitute for offloaded history. See [State Persistence](/openwiki/concepts/state-persistence.md) for checkpoint lifecycle and [Cost and Sessions](/openwiki/operations/cost-and-sessions.md) for session accounting.
+These controls primarily change what a model receives; they are **not durable memory**. Compaction records a summarization event that reconstructs an effective request history without deleting the checkpoint's conversation messages. In contrast, tool-result eviction and overflow clipping can replace a checkpointed `ToolMessage` with a recovery pointer after saving its text to the backend. SDK conversation archives are best-effort recovery aids, while dcode's server offload treats its checkpoint event and archive link as a guarded commit workflow. Memory files such as `AGENTS.md` are separately injected prompt content, not a substitute for offloaded history. See [State Persistence](/openwiki/concepts/state-persistence.md) for checkpoint lifecycle and [Cost and Sessions](/openwiki/operations/cost-and-sessions.md) for session accounting.
 
 ```mermaid
 flowchart TD
@@ -67,9 +67,9 @@ The summarizer derives history and large-result prefixes from its backend. A `Co
 
 ## SDK summarization and overflow recovery
 
-`SummarizationMiddleware.wrap_model_call` reconstructs effective messages from a prior summarization event, counts them with the system message and tool schemas, and can truncate old oversized tool arguments. It evaluates the configured trigger. With a positive cutoff, it partitions old and retained messages, attempts to archive the old portion, creates an LLM summary, and invokes the model with the summary plus the preserved tail. The returned `ExtendedModelResponse` carries a `Command` that updates the event and session id.
+`SummarizationMiddleware.wrap_model_call` reconstructs effective messages from a prior summarization event, counts them with the system message and tool schemas, and can truncate old oversized tool arguments. It compacts when the configured trigger fires **or** the complete request exceeds its calculated input budget (advertised input limit minus configured output allowance and headroom). With a positive cutoff, it partitions old and retained messages, attempts to archive the old portion, creates an LLM summary, and invokes the model with the summary plus the preserved tail. The returned `ExtendedModelResponse` carries a `Command` that updates the event and session id.
 
-If automatic summarization is not indicated, the middleware first tries the ordinary model request. A `ContextOverflowError` changes to the same compaction path. Archive failure emits a warning but does not prevent a useful in-context summary; its event has `file_path=None`, so older detail is not recoverable from that archive.
+If automatic summarization is not indicated, the middleware first tries the ordinary model request. A recognized provider context-limit error, including `ContextOverflowError`, changes to the same compaction path. Archive failure emits a warning but does not prevent a useful in-context summary; its event has `file_path=None`, so older detail is not recoverable from that archive.
 
 ### Conversation archive lifecycle
 
@@ -79,7 +79,7 @@ Before archival, inline base64 media is uploaded under the history media prefix 
 
 ### Overflow tail clipping
 
-Only after overflow-triggered compaction, `_clip_overflow_tail` examines a **trailing consecutive** `ToolMessage` batch in the retained suffix. It acts when the batch reaches the keep-derived token threshold: the explicit token budget, a known model-limit fraction, or `5,000` tokens for message-based keep or an unknown limit. Generic results use the normal offload helper. A `read_file` result instead retains roughly 4,000 leading characters and points at the original file, avoiding a redundant write. Replacement ids let the messages reducer overwrite the checkpoint entries; failed writes leave messages unchanged.
+The recovery call sends at most one strictly smaller retry. It invokes `_clip_overflow_tail` on a **trailing consecutive** `ToolMessage` batch in the request being retried; in the current SDK recovery path it supplies a one-token threshold, so any non-empty trailing tool-result batch is eligible. The helper itself supports a keep-derived threshold (an explicit token budget, a known model-limit fraction, or 5,000 tokens for message-based keep or an unknown limit). Generic results use the normal offload helper. A `read_file` result instead retains roughly 4,000 leading characters and points at the original file, avoiding a redundant write. Replacement ids let the messages reducer overwrite the checkpoint entries; failed writes leave messages unchanged.
 
 ## dcode compaction and server-owned `/offload`
 

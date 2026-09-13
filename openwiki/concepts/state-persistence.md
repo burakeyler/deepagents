@@ -1,12 +1,11 @@
 ---
 type: state persistence model
 title: State, Sessions, and Workspace Persistence
-description: Explains the independent persistence boundaries for LangGraph state, Deep Agents backends, dcode session SQLite, and remote workspace bindings. Covers safe resume, state migration, and remote execution drift rejection.
-tags: [state, persistence, checkpoints, sessions, workspace, langgraph, dcode]
-verified:
-  - by: openwiki/0.4.2
-    at: 2026-09-09T08:05:37.706Z
+description: Explains the separate persistence boundaries for LangGraph checkpoints, dcode sessions and workspace bindings, ACP session recovery, and Talon conversation archives. Covers restart behavior, ownership, consistency limits, and operational safety.
+tags: [state, persistence, checkpoints, sessions, workspace, langgraph, dcode, acp, talon]
 sources:
+  - id: openwiki-source-ffc41789c892ca61e2829a4c
+    resource: repo://libs/acp/deepagents_acp/server.py
   - id: openwiki-source-68ae2141dbec1e0915410ac3
     resource: repo://libs/ARCHITECTURE.md
   - id: openwiki-source-2e03fee957625ca21a1c21af
@@ -33,87 +32,135 @@ sources:
     resource: repo://libs/deepagents/deepagents/graph.py
   - id: openwiki-source-fed4b84a38685f37e58018c5
     resource: repo://libs/deepagents/deepagents/middleware/filesystem.py
-generated: { by: "openwiki/0.4.2", at: "2026-09-09T08:05:37.706Z" }
+  - id: openwiki-source-995d5d95882808a64071f617
+    resource: repo://libs/talon/deepagents_talon/archive_saver.py
+  - id: openwiki-source-81698d033a5726401d48b135
+    resource: repo://libs/talon/deepagents_talon/config.py
+  - id: openwiki-source-470e982344d3fb19aa4cd0a7
+    resource: repo://libs/talon/deepagents_talon/history_backends.py
+  - id: openwiki-source-811fef57cecdbee2ba06a7b5
+    resource: repo://libs/talon/deepagents_talon/store_archive.py
+verified:
+  - by: openwiki/0.4.2
+    at: 2026-09-13T08:05:04.998Z
+generated: { by: "openwiki/0.4.2", at: "2026-09-13T08:05:04.998Z" }
 ---
 
 # State, Sessions, and Workspace Persistence
 
-Persistence is not one database or one lifecycle. In this stack, distinguish four owners:
+Persistence is not one database or one lifecycle. The system has independent owners with deliberately different scopes:
 
-1. **LangGraph checkpoints** version agent graph state for a `thread_id`: messages, interrupts, middleware channels, and resume points.
-2. **Deep Agents backends** own file and memory data. Their route determines whether that data lives in checkpointed state, a store, or an external filesystem/service.
-3. **dcode session SQLite** is the local implementation of the LangGraph checkpointer and the source for the local thread catalog.
-4. **Remote dcode workspace bindings** are a separate server-authoritative SQLite record that pins a thread to a workspace identity and resource policy.
+| Owner | Durable unit | What it is for | What it does not imply |
+| --- | --- | --- | --- |
+| LangGraph checkpointer | checkpoint history for a `thread_id` | graph state, message history, interrupts, pending writes, and resume points | a global filesystem, a workspace authorization, or searchable long-term history |
+| Deep Agents backend or store | backend-defined files and memories | filesystem and memory lifetime appropriate to its route | checkpoint durability unless the backend is state-routed |
+| dcode local SQLite | LangGraph checkpoint and write rows | local CLI resume and thread catalog | a second transcript database |
+| dcode workspace binding | one thread-to-workspace policy record | remote workspace identity and runtime authorization | the conversation checkpoint itself |
+| ACP server | protocol session mapped to a graph thread | client session metadata and replay when enabled | restart recovery with the default in-memory saver |
+| Talon archive | scoped, append-only transcript records | cross-session conversation discovery and retrieval | an atomic extension of checkpoint storage |
 
-A durable checkpoint alone therefore does not make filesystem data global, and a thread ID alone does not authorize remote execution in an arbitrary directory. See [Configuration layering](/openwiki/concepts/config-layering.md), [Context management](/openwiki/concepts/context-management.md), [Runtime behavior](/openwiki/architecture/runtime-behavior.md), and [Run a dcode session](/openwiki/workflows/run-dcode-session.md).
+A durable checkpoint alone therefore does not make files global, and a thread ID alone does not authorize remote execution in an arbitrary directory. See [Context management](/openwiki/concepts/context-management.md), [Runtime behavior](/openwiki/architecture/runtime-behavior.md), [ACP](/openwiki/integrations/acp.md), and [Talon](/openwiki/integrations/talon.md).
 
-## Graph state is the resume authority
+## Checkpoints are the graph-resume authority
 
 Persistence in Deep Agents has two separate axes: LangGraph checkpoints preserve conversation state, message history, interrupts, and resumability per thread, while Deep Agents backends handle filesystem and memory persistence whose durability depends on the backend route.
 
-`create_deep_agent` passes its optional `checkpointer` and `store` to LangChain's `create_agent`. A checkpointer persists graph state between runs; a backend using a store route separately requires `store`. Select these independently: use a restart-durable saver when a thread must resume after process loss, and select a backend whose route has the required lifetime and sharing semantics.
+`create_deep_agent` forwards its optional `checkpointer` and `store` to LangChain's `create_agent`. A checkpointer persists graph state between runs; a backend using a store route separately requires `store`. Select them independently: use a restart-durable saver before promising restart-safe resume, and select a backend whose route has the required sharing and retention semantics.
 
-The default `StateBackend` is deliberately thread-scoped. It reads and queues `files` updates through LangGraph's `CONFIG_KEY_READ` and `CONFIG_KEY_SEND`, so files are checkpointed with graph state and survive within that conversation thread, not across threads. It must be called inside graph execution; direct use without the LangGraph configuration fails. Reads use `fresh=True`, so a tool can read its own pending file write in the same superstep.
+The default `StateBackend` is intentionally thread-scoped. It reads and queues `files` updates through LangGraph's `CONFIG_KEY_READ` and `CONFIG_KEY_SEND`, so files are checkpointed with graph state and survive within that conversation thread, not across threads. It can only run inside graph execution. Choose a store- or filesystem-backed backend when data must outlive or cross threads.
 
-### Delta checkpoints and schema extensions
+### Delta checkpoints and state schemas
 
-`DeepAgentState` is the default `state_schema` and replaces only `messages` from LangChain's `AgentState` with `DeltaChannel(_messages_delta_reducer, snapshot_frequency=50)`. Rather than repeating the full message list on each checkpoint, the channel persists deltas and periodically snapshots it, making long-thread persisted message volume linear rather than quadratic while bounding reconstruction work. `FilesystemState.files` uses the same 50-step delta/snapshot pattern.
+`DeepAgentState` is the default `state_schema` and replaces only `messages` from LangChain's `AgentState` with `DeltaChannel(_messages_delta_reducer, snapshot_frequency=50)`. The channel persists message deltas and writes a full snapshot every 50 pregel steps. This changes long-thread persisted message volume from quadratic to linear while bounding reconstruction depth. `FilesystemState.files` uses the same delta/snapshot pattern.
 
-A custom `state_schema` should be a `TypedDict` extension of `DeepAgentState` so it retains the message-channel contract. This is a static typing requirement, not an `issubclass` runtime validation. The graph merges schemas supplied by assembled middleware with the base schema, allowing middleware to own typed channels. Middleware can mark fields with `PrivateStateAttr`; the task middleware filters those fields in both parent-to-child and child-to-parent projection, preventing private checkpoint facts from becoming subagent inputs or merged results.
-
-## dcode local sessions: checkpoint database, not a second transcript store
-
-The local CLI obtains an `AsyncSqliteSaver` from `sessions.get_checkpointer()`, calls `setup()`, and passes it to each CLI graph. The global database path is `DEFAULT_STATE_DIR / "sessions.db"`, after the state directory is hardened. Consequently, the checkpoint and write rows owned by LangGraph are also dcode's local source of truth for thread listing and resume; they are not duplicated into a dcode-specific conversation table.
-
-`list_threads` derives its rows from checkpoint metadata: agent name, created and updated timestamps, Git branch, working directory, and latest checkpoint ID. It optionally obtains the initial prompt and visible message count from checkpoint data. Filters for agent, branch, and `cwd` operate on checkpoint metadata; the `cwd` comparison is an exact string match, so it does not normalize paths or follow symlinks. A covering SQLite index is created opportunistically to avoid scanning large checkpoint blobs; inability to create it preserves correct results but can make listing slow.
-
-When a latest delta checkpoint does not inline `messages`, dcode reconstructs its visible message count from root-namespace `messages` writes. It replays rows ordered by checkpoint ID, task ID, and write index, and excludes subgraph writes under the same thread ID. The full-history fold matches dcode's normal append-only, head-of-thread usage (including pending writes visible through `aget_state`); externally created forked or abandoned branches can make that estimate over-count.
-
-### Checkpoint-versioned resume facts
-
-`ResumeStateMiddleware` adds private checkpoint channels for the facts needed to rehydrate a dcode session without replaying or re-tokenizing history. After a successful model call, graph middleware records the latest context-token count and effective model/request/cache facts in the same checkpoint as the response. Accepted goal and rubric choices may instead be written by the TUI through `aupdate_state`, while pending criteria proposals and agent-driven status changes are graph-written. These are versioned state values: resuming a selected checkpoint restores the facts from that point, not a thread-wide aggregate. The model-turn write path works with local and remote HTTP graphs.
-
-### Local state-directory migration
-
-On normal command startup—after argument parsing and the bare-help fast path—dcode attempts a best-effort migration of legacy state from `~/.deepagents/` to `~/.deepagents/.state/`. It moves a fixed set of internal entries, including `sessions.db` and its `-wal` and `-shm` sidecars, MCP tokens, history, update state, and onboarding data. Keeping the SQLite sidecars with the main database avoids splitting a WAL-mode database.
-
-The migration is idempotent and fail-soft: missing sources do nothing; a destination that already exists is preserved and reported; directory creation or an individual rename failure is logged while startup and other entries continue. If both legacy and destination files exist, resolve that collision manually rather than assuming either copy is disposable.
-
-## Remote execution: immutable workspace binding
-
-Remote dcode adds an authorization and resource-selection record that is separate from checkpoint state. A binding stores the canonical resolved `cwd` and project root, a workspace fingerprint, schema version, generation, resource key, configuration fingerprint, and a JSON resource policy. The `cwd` supplied for initial resolution is untrusted: it must be a non-empty absolute existing directory without traversal and is resolved canonically. The persisted policy is server-resolved rather than client-provided and excludes secrets such as model credentials and prompt text.
+A custom `state_schema` should extend the `DeepAgentState` TypedDict to retain that message-channel contract. This is a type-checker requirement; it is not runtime-validated with `issubclass`. Consumers that inspect messages must tolerate a checkpoint whose latest payload has no inline complete message list.
 
 ```mermaid
 flowchart TD
-    Request["Remote bind request"] --> Resolve["Resolve canonical workspace and server policy"]
-    Resolve --> Bind["SQLite immediate transaction"]
-    Bind --> Existing{"Thread already bound"}
-    Existing -->|"No"| Persist["Persist binding and resource key"]
-    Existing -->|"Same identity and policy"| Reuse["Reuse existing binding"]
-    Existing -->|"Legacy compatible row"| Upgrade["Migrate binding schema"]
-    Existing -->|"Different identity or protected policy"| Reject["WorkspaceConflictError"]
-    Persist --> Execute["Require matching execution context"]
-    Reuse --> Execute
-    Upgrade --> Execute
-    Execute --> ReResolve["Re-resolve identity and current policy"]
-    ReResolve --> Runtime["Select cached or new workspace runtime"]
+    Input["Invoke graph with thread ID"] --> Run["Graph updates state and pending writes"]
+    Run --> Saver["LangGraph checkpointer"]
+    Saver --> Delta["Delta channels and periodic snapshots"]
+    Delta --> Resume["Resume a selected checkpoint"]
+    Run --> Backend["Deep Agents file or memory backend"]
+    Backend --> StateFiles["StateBackend files in same thread checkpoint"]
+    Backend --> External["Store or filesystem route with independent lifetime"]
 ```
 
-This lifecycle shows that a thread obtains one durable workspace authority before its graph is selected, and every execution rechecks that authority.
+This flow separates graph recovery from backend data lifetime: only the state-backed file route shares the thread checkpoint.
 
-`bind_thread_workspace` uses `BEGIN IMMEDIATE` plus `INSERT OR IGNORE` and then compares the stored and proposed binding. Concurrent first claims cannot mix two workspaces: one wins and a different workspace or protected policy produces `WorkspaceConflictError`; an equivalent claim is idempotent. The resource key combines workspace identity and configuration fingerprint and selects a cached per-workspace runtime. A process-wide sandbox imposes a further constraint: a process already hosting another workspace in such a sandbox rejects the new workspace.
+## dcode local sessions
 
-Current schema version 3 deliberately migrates compatible older binding rows. Version 2 fingerprints could reflect launch-project policy rather than the resolved workspace policy. The upgrade first verifies workspace identity and session-scoped controls, then atomically replaces the schema, resource key, fingerprint, and policy; it refuses a migration that would change recorded session controls. New-schema bindings reject identity and configuration drift rather than silently changing a thread's authority.
+The local CLI obtains an `AsyncSqliteSaver` from `sessions.get_checkpointer()`, calls `setup()`, and passes it to CLI agent graphs. The hardened global database path is `DEFAULT_STATE_DIR / "sessions.db"`. LangGraph checkpoint and write rows are consequently both the resume source and dcode's local thread catalog; dcode does not maintain a duplicate conversation table.
 
-Before remote graph execution, `make_graph` requires both a nonempty LangGraph `thread_id` and workspace context. `require_thread_workspace` confirms that every public context field exactly matches the durable binding, rejects an unsupported binding schema or claimed policy mismatch, and re-resolves the bound path to detect changed workspace identity. Runtime construction then resolves current server configuration for the bound workspace and rejects project-policy or server-configuration fingerprint drift. A transient failure while reading extension trust can therefore surface as policy drift rather than silently relaxing policy.
+`list_threads` derives agent name, created and updated timestamps, Git branch, working directory, and latest checkpoint ID from checkpoint metadata. It can enrich rows with checkpoint-derived prompt and visible-message-count data and filters by agent, branch, and exact `cwd`. A covering index is created opportunistically so the catalog query avoids reading large checkpoint blobs; failure only logs and falls back to a slower correct table scan.
 
-The workspace-binding endpoint resolves policy on the server, rejects client attempts to claim project policy, binds before creating or updating remote thread metadata, and maps conflicts to HTTP 409. If the later metadata mirror fails, the binding remains durable but the endpoint returns 503: callers must handle that split outcome rather than assuming no workspace was bound.
+When a delta checkpoint does not inline `messages`, dcode reconstructs a visible message count by replaying root-namespace `messages` writes in checkpoint, task, and write-index order. It deliberately excludes subgraph writes under the same thread ID. This is an estimate for dcode's usual append-only head-of-thread history, not a general branch-aware transcript engine.
 
-## Operational guidance
+`ResumeStateMiddleware` adds private checkpoint channels for facts required to rehydrate a dcode session. Graph middleware writes model-turn facts after successful calls; accepted goal and rubric choices may be client-written through `aupdate_state`; pending proposals and agent status changes are graph-written. As checkpointed values, these restore with the selected checkpoint rather than as a thread-wide aggregate.
 
-- Treat a checkpoint as the only resume authority for graph state; configure a durable saver before promising restart-safe resume.
-- Use `StateBackend` only for thread-local checkpointed files. Choose a store or filesystem-backed backend when the data must outlive or cross threads.
-- Preserve `DeepAgentState.messages` delta semantics in custom schemas, and ensure dcode tools that inspect history tolerate a checkpoint with no inline message list.
-- Back up or move `sessions.db`, `sessions.db-wal`, and `sessions.db-shm` together. When the automatic state migration reports a collision, inspect both copies before manual cleanup.
-- Do not substitute checkpoint metadata such as `cwd` for remote authorization. Bind a remote thread first and send the exact binding payload on execution.
-- Treat a workspace conflict as intentional safety behavior. Start a new thread for a different workspace or resource policy; resolve configuration/policy drift explicitly instead of mutating the existing thread binding.
+On command startup, after argument parsing, dcode makes a best-effort, idempotent migration from `~/.deepagents/` to `~/.deepagents/.state/`. It preserves destination collisions and moves `sessions.db` together with its WAL and shared-memory sidecars. Back up, move, or manually resolve those three files as a unit.
+
+## Remote dcode: a durable workspace authority
+
+A remote dcode workspace binding is distinct from graph state. It records a canonical resolved workspace identity, schema version, generation, resource key, configuration fingerprint, and server-resolved resource policy for one thread. Initial `cwd` input is untrusted: it must be a nonempty absolute existing directory without traversal and is canonically resolved. The public execution payload omits the policy JSON; server code retains that authority.
+
+```mermaid
+flowchart TD
+    Request["Workspace endpoint request"] --> Resolve["Resolve workspace and server policy"]
+    Resolve --> Bind["Persist or verify thread binding"]
+    Bind --> Runtime["Build or reuse workspace runtime"]
+    Runtime --> Mirror["Mirror thread metadata"]
+    Mirror --> Ready["Return workspace descriptor"]
+    Mirror --> MetadataFail["Return 503 with durable binding retained"]
+    Execute["Remote graph execution"] --> Require["Require thread ID and workspace context"]
+    Require --> Compare["Compare durable binding and re-resolve identity"]
+    Compare --> Drift["Reject changed identity or policy"]
+    Compare --> Select["Resolve current policy and select runtime"]
+```
+
+This restart and recovery flow shows why a client must distinguish a failed metadata mirror from a failed bind: after that 503, retrying with the same binding is safe, while a different workspace or protected policy is a conflict.
+
+`bind_thread_workspace` uses `BEGIN IMMEDIATE` and `INSERT OR IGNORE`, then compares the existing and proposed records. Equivalent claims are idempotent. A different workspace identity or protected policy raises `WorkspaceConflictError`, preventing concurrent first claims from mixing workspaces. Compatible legacy bindings are upgraded to schema version 3 only after workspace identity and recorded session-policy checks; current bindings reject configuration drift.
+
+The endpoint resolves workspace policy on the server and rejects client claims to project workspace policy. It binds before mirroring LangGraph thread metadata, and maps a later metadata-mirror failure to 503 while leaving the binding durable. Before execution, `make_graph` requires a nonempty thread ID and workspace context. `require_thread_workspace` compares every public context field with the durable record, rejects unsupported schema or claimed-policy mismatch, and re-resolves the workspace identity. Runtime selection then rejects current project-policy or server-configuration fingerprint drift instead of silently changing a thread's authority.
+
+## ACP session recovery
+
+`AgentServerACP` maps an ACP `session_id` to LangGraph `thread_id` of the same value. The graph configuration persists an ACP marker, `cwd`, and selected mode or model in checkpoint metadata. `new_session` writes that metadata only when `load_sessions=True`; changes to mode or model then persist it and rebuild a factory-created graph as needed.
+
+`load_sessions` is an opt-in capability, not a durability guarantee by itself. It is advertised only with `load_sessions=True`, requires a compiled graph with a checkpointer, verifies that the checkpoint is marked as an ACP session and that its saved `cwd` exactly matches the load request, restores supported mode/model choices, and replays saved messages and tool calls to the client. An ACP server that has no checkpointer gets a `MemorySaver` on first prompt; that supports in-process conversation state but cannot survive a server restart. Configure a restart-durable saver before enabling recovery across restarts.
+
+## Talon: checkpoints plus a separately owned archive
+
+Talon's experimental `ConversationSaver` wraps an async LangGraph saver and a `StoreConversationArchive`, but takes ownership of neither. It delegates checkpoint reads, listing, delta reconstruction, and pending writes to the underlying saver. For root graph checkpoints carrying trusted Talon channel/chat metadata, it registers the session in the archive, gathers committed message revisions, persists the checkpoint, then appends those revisions to the archive under one wrapper lock. Subgraph namespaces are not archived.
+
+The two writes do **not** share a transaction. An archive failure propagates after the checkpoint has been persisted; retrying the same checkpoint write repairs the archive without duplicate revisions because archive writes are idempotent. Cancellation waits for both writes to finish before it propagates, so history reset cannot race an unfinished archive operation. Deletion is similarly ordered: delete the checkpoint thread first, then remove its archive registration; a failure leaves registrations available for retry. Stop chat workers before clearing a scope.
+
+```mermaid
+sequenceDiagram
+    participant Graph as Talon graph
+    participant Saver as ConversationSaver
+    participant Checkpoint as Checkpointer
+    participant Archive as Conversation archive
+    Graph->>Saver: aput checkpoint
+    Saver->>Archive: register scope and session
+    Saver->>Checkpoint: persist checkpoint
+    Saver->>Archive: append message revisions
+    Archive-->>Saver: archive result
+    Saver-->>Graph: checkpoint config
+```
+
+This sequence has checkpoint-before-archive ordering, not cross-store atomicity.
+
+`StoreConversationArchive` stores scoped transcript chunks, summaries, and recovery records in a metadata `BaseStore`; its optional vector store must be a separate instance. A session registration binds each transcript to the trusted channel/chat scope, and visibility checks that live ownership before returning an entry. Chunk deduplication keys include session, message identity, revision, and part, allowing retry repair without duplicated revisions. It excludes Talon's own history-tool output from archived tool messages to avoid recursively archiving retrieval results.
+
+`open_history` selects history storage from `DEEPAGENTS_TALON_HISTORY_URI`, defaulting to the same SQLite URI as `checkpoint_path`; that default means two independent logical users may share a database file, not that archive writes become checkpoint transactions. Built-in URI schemes are SQLite/file, PostgreSQL, and MongoDB; an installed `deepagents_talon.history_backends` entry point can supply another scheme. The archive namespace includes the stable assistant ID, and startup validates configuration, initializes recovery/indexing, and converts backend failures to sanitized `TalonConfigError` messages. Optional vector search and indexing are configured separately from checkpoint persistence.
+
+## Operational invariants
+
+- Promise restart-safe graph resume only after configuring a durable LangGraph checkpointer. Treat `MemorySaver` as process-local state.
+- Treat checkpoints, archives, memories, and workspace bindings as separate retention and backup domains. Do not infer authorization from checkpoint metadata or searchability from a checkpoint.
+- Use `StateBackend` only for thread-local checkpointed files. Preserve the delta channel when extending state schemas.
+- Preserve dcode SQLite's database, `-wal`, and `-shm` sidecars together. Investigate migration collisions rather than deleting either copy.
+- Bind a remote thread before execution and send its exact workspace payload. Start a new thread for a different workspace or resolve policy drift explicitly.
+- For Talon, plan for retry after an archive error: the checkpoint may already be durable. Provide one active archive writer per namespace and stop workers before destructive history operations.

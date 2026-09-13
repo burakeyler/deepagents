@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:d59dcf2396ed21434ae3cd3d667d9bce443c007d0605adaefd9fbcb2e33f8330",
+  "pageVersion": "sha256:f1bc2cd3b46e01518e248a6ab4f654c6cb55990f079444da7e1af749c3536dcb",
   "claims": [
     {
       "id": "claim_842d191498324c558672b6f9d9aa40a4",
@@ -81,8 +81,8 @@
       "statement": "Talon explicitly classifies MCP configuration redaction and placement warnings as non-confidentiality controls because its default local shell can access readable absolute paths outside the mediated configuration tools.",
       "evidence": [
         {
-          "resource": "repo://libs/talon/deepagents_talon/mcp_config.py#L80-L143",
-          "version": "repo-lines-v1:sha256:c8768ee074b9428cc9b986539bc804ea68b4b1b840311055eb9c6455786e846f:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlmZWRjZjJlYWM2YjdjYTYwNTNlOWM1YzFhYjUxZDQ0ZmU3M2E1MDBlMTNlYmY2ODE5NDY3MGEwZDI5OGFiMTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2YTcxNTI1NzJlZTg0ZjEwOTA2Yzc0YjlmMmE5MjQzNGRkYWIwZTNjNDI4MTNiMDRlNTk3ZWZjZWM5NTFiMjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMyNDViN2FmMWZlYTM0MTFhODg5ZTM1ZTg0MWVmZjgxNDVkYzcwZWVkOGYxYjNhMWJkODI1MzI2YTRlNDM3NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzMzEwOTVkNWZkOTQ5N2Y0M2RkNjkwMWE5M2Y3NDNiYjY1NTUwNmEwNTBlMTVjMjgxNWJmMWM5ZDRmMTMyOTgifQ"
+          "resource": "repo://libs/talon/deepagents_talon/mcp_config.py#L79-L143",
+          "version": "repo-lines-v1:sha256:22b0f0d277ab13def0a40a93a8320143788cff36b7c60580934c08d2bab1f2db:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlmZWRjZjJlYWM2YjdjYTYwNTNlOWM1YzFhYjUxZDQ0ZmU3M2E1MDBlMTNlYmY2ODE5NDY3MGEwZDI5OGFiMTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1YThlNDMyOWU0MTAxYjRiNDljNmQyZjg3MzI2Mjc0OTY0NTdiMzY1NTRkNDFkYTI2ZjI1MGVjM2NhOGIwZWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMyNDViN2FmMWZlYTM0MTFhODg5ZTM1ZTg0MWVmZjgxNDVkYzcwZWVkOGYxYjNhMWJkODI1MzI2YTRlNDM3NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwNGFkMGQzMTg3ODg3NDZjYzYxNTExNjgwODE1NTNiNmFkMzQ4OGQ4ZjM1YTg1NmE1ZjIxZDZhZWVjOTU3NzUifQ"
         }
       ]
     },
@@ -119,10 +119,98 @@
           "version": "repo-lines-v1:sha256:90100de62114e9f466b350de332123a0a7079d08399034c47f78f4db8a094369:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGU4MTAyYTZkOWIyZWNjYjFkZDMyY2U4NWUzZDg0ODYyNjVmNTUxODg2MjIwMDRlODBkZDQyZjhhMjYxZmRkOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWQyYTAxYWYzNDNiNjllNGY4NWRhMWNmYzFmZmIyOTQwODJhYmI2YjAzMTdiMzI5M2M0Zjk5YTI1MDIyMTg1YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjJmY2M1NzY4YjllN2M5NWZhYTEzZjU1MWU1ZjZhN2FmZTAzYzFkYTNjYjMwYmRmNWIwZGQ0NGRiMmVlNDJkOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjYwMDQzNGYxYzVjY2Q1YmY1OGRhMDZjYWQxOWYyOTM1YjU4MGI3OTI1MWE0ZDc3ZjE5OWMzNzhiNDRjOGY3NiJ9"
         }
       ]
+    },
+    {
+      "id": "claim_203ef0a77ad449c28b787e342419156e",
+      "statement": "Deep Agents follows a trust-the-LLM model in which the agent can do anything its exposed tools allow, so enforcement belongs at tool and sandbox boundaries rather than model self-policing.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L110-L112",
+          "version": "repo-lines-v1:sha256:b4f2e1e9d64a8ffa2dbf6be9ba7b336497497e2690924df304f69f103bc69d3b:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzgzNDA0ZmQ4NmMzZDVjNDU5OTk5YWFjZWMwNDc4NzZkMDM2Y2U3MWNhM2IzZTQ4ODhmZjg0ODA5ZjlmOWY2NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2I4MGM5ZTE2NzMxNDQzMzk5MmQ5Mzk2NjAxYjhkNTYxN2RkY2RjYzdhMjg1YTVhODEwMDc3NWNiMDI0MjM5ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDAyMTA2MGNhMzFmOTc4ZmQ2MDYzMThhY2VmMmI1YmRiMDcyMjFkZmFjMjg5M2E1ZTlkNmJiYTYzNTUwMDM3ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_7ef00f0878a242449723794499e5b6cc",
+      "statement": "When dcode LangSmith tracing can upload and secret redaction is enabled, it installs a secret anonymizer; if installation fails, it disables tracing rather than risk an unredacted upload.",
+      "evidence": [
+        {
+          "resource": "repo://libs/code/deepagents_code/config.py#L4734-L4808",
+          "version": "repo-lines-v1:sha256:1184c5e648aaf43e7f7429d6032811876dd92262bd7a8f9d4964cb078decc70b:eyJzZWxlY3RlZExpbmVDb3VudCI6NzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyMDQ2MDNhYWZmNzdhOTI4YmRjMWI4NWUwMjNlYzBhN2MwOGRkMzU4MDlmNDI4NzMxNmY1NjViM2E4NTc0M2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwZTJhNDY1MDA5NWZhOTVkMGUyYmI0MWIyZGIyOTA5NGQzNDA0ZDI4Y2UxMjMzOWVjODhiYjRiNWM1YmU4ZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjViYmFkNmZiOGZhYTFlNWU5ZTU5NDE4MDNlMzI1NjQ2OTFjZjQ5ZDZhNzZiNTBjMzQ4ZjRlMWNlOTA0ODAzNGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMwNTYxMjM3YjQyYTQ3MmU5OGYzM2FlZjM0YjljNTYzMjhhNGM4MjhmNDk4NDUxNjM3MDU5YjkyMzc4MmJjZDQifQ"
+        },
+        {
+          "resource": "repo://libs/code/deepagents_code/server_graph.py#L97-L128",
+          "version": "repo-lines-v1:sha256:28c82ca569f067ee98ffe48ae9355693028eadbccb67ad8d03c4832f49a6d14d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3OWViOWY1ZDE2NmU4NzQyOGQ3MzcxMTdiOGU3YWM4MGQ4NzFjNjZmODAwOGI0NzM0YzM2ODk3OGY5MDk2YzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ0MWRkZGJmMjgzYzhiMGU1YzYzZmE0OWNkYThkNzE4NDgwMGM0MGY4YWZjOWQ5YzE3YzcxZGMyYWE1NDg4OTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM5ZWZkOWUxNzJlNTE2NDhjYzY1N2RiZWEwNDYxM2ZiNzc5M2Q2ZjZjYmViOTIyZjE2YWVkYTZmZDRhMTlmNTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJlOTM3ZTE5YTJkODQwNTZhMTljODE0MGM2ZmI4Zjc4MWJjNDYwZDFhZjkwODc5NjM5ZTgxOTRlZjlmZDQyYzUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e13fd2446f6d45ebb7c7e3198b70d877",
+      "statement": "Talon's default DeepAgentRuntime backend is a non-virtual LocalShellBackend with a filtered non-inherited environment and fixed PATH, which reduces environment propagation but does not sandbox local execution.",
+      "evidence": [
+        {
+          "resource": "repo://libs/talon/README.md#L586-L592",
+          "version": "repo-lines-v1:sha256:373f7c59c80949c16cb2f4f5d87b1f759814185fac74614b945981b029be81a7:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWE4ZDhiMmQ5ZTc4YTUzN2E3Yzc5OTQ4NDQxNmM3MDRkMDE3OGJhZTRmNzY2ZGZkZTY0ODM5YTQxMDFjYzg0MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ1M2E2ZWUyZDg2M2U0YjU3MGY0MThkZTRkYTQyOThlYWEzYjA3NzMxM2U4ZDJiMTBmM2I3YTRlNTU3NjI4YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzIxNDRhMzg4ODcwOTQxMWVjOGViMTRiNWU3OTYzYzQwZTc5NTNiMDQ1Yzg5MWNlOWY3MmExYjM3MjhjMmQwOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjI1NTkyYThkNzIwMjU2ZjFjYzU0NGI1YzQ3ZGRjZTQ1ZDg1Y2UyZGUxYmEyYWRhNjQ2NjAyOWYyMDlhODVkYyJ9"
+        },
+        {
+          "resource": "repo://libs/talon/deepagents_talon/runtime.py#L1068-L1086",
+          "version": "repo-lines-v1:sha256:58348034978c9e87fa45a72036c1cedbcc2363122e7f1ee6b5968cdf7fe649a2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwMzdiZDI4ODBmZTgyMTYxOTczZjY4ZTAwMDQ1MmFjMmMwYTljZGM4YWE4M2U5NWI1MGUyYTQzOWRmYWQzNzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUzOTRkMzkzY2ExYThmZjk1NWM2ODhiMDYxMzM4OGRmOGJlODBjMmQ1NWQ4MzkyZWM0MjlkMThlM2M5MjUwYTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM4OTFjYjVjMTcxNWY1NWY5OTliODdmZTI1M2Q4ODA1NDAxZjQ3YzQ0NjM0ZTZiYmJhMzMwY2MwMzg1N2U5MWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0NDczMWI2MzBjMmQzZmQ1NWVlMTg2M2I3OTY5MjhlZDE2ZDNjOGQ0YWY5OTAzY2MyZDBmYjI2Y2IyNDY4MjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_925bc6ad416f4af586c25914097240c7",
+      "statement": "Talon approval policy is an invocation snapshot of exact tool names; cron, background-delivery, and requests without an approval handler auto-deny approval interrupts, while an interactive host binds the approval reply to the sender that started the run.",
+      "evidence": [
+        {
+          "resource": "repo://libs/talon/deepagents_talon/host.py#L1528-L1587",
+          "version": "repo-lines-v1:sha256:a839a578c04e7f50f758dc91fdbab30759d5f2ee4be9cd167bed3d85fd95a4c3:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4Mzc5MDA2ZGM3NTg2NGEwYmMxODdhZTgyODFkNGIzNTY0MDVjNzEzZGY2MDk1Yjc0YjU2MTRiYTQ5MThhMjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY4Y2Q2OGI2MDcyMGMwMmU0NjQyYTMyMGQwODM0YjcwN2EzZjlhYWM3NTMyYzQ5ZmNlOTI1YjVhZWQ4YjkzMjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3Mzg1YmE1MGIwNzNiYjFkYWU1OWVlNWYzMDliNTI4OTc5ZjhjYTQ1ZmE1NjNmMjJlNzQyZmRmMTFhMDRmMTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY5N2JhMjZiZmRlYTRhZTZiZmI4M2U1ZGRmMmJiN2Q5YWQxYTRhY2FmOTkzOTNmY2FhMDI3MjhmY2QxZDA5NjMifQ"
+        },
+        {
+          "resource": "repo://libs/talon/deepagents_talon/runtime.py#L953-L991",
+          "version": "repo-lines-v1:sha256:7251fbd4b991fa0ea15b8ab8fbf10e939fee69d6aef83d8327531a04ce47ad0a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwOGFhMDliYTNkMTViMGQ1OTlmMjE2YjY3YzhkMzg3MzNiYWQwOTljZGRiMWRhYTJlYWExZjRmYjkyNzRiMTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyZTgxYzZhYjEzMWQ4NjBhMWUzNmIxNmRmOTE5OGY1NzQ4YzMyYzhiYWNlMjdmYzEyZDI1ZGYwNDY3YzIzN2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjZGNkZDgwYzI4OGY4MzZlNmUyY2UyNWQ2Y2NmMWJhYTBiMWE5YzUzZWU1N2M2ZDA2MmJkOTNiNDJiNzZkNjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI0MDkzNjk4MmVhODBlMmRkNDA4Zjk4ZjdjN2IwYjcxZjY5MzE4NzllNDc1ZTY5OTI2NzhhNDk5MjBhZTVhNWMifQ"
+        },
+        {
+          "resource": "repo://libs/talon/deepagents_talon/tool_approvals.py#L65-L83",
+          "version": "repo-lines-v1:sha256:00f6a7c5be5f3707e591b32ab9db68abe5e928b5e8efc2fe435968816ece8fe4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2OWExMzk3NWMyNTZlYzgzMjBlMjAxNjA4M2M5NmRmNjM3Y2EzZDM1YmViZGUyMzE0YmVlM2E0NzExYjU2Y2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3MjIzMTA2ZmQ4NzQyYjcwZWEyMzNmOWRjMzU5ZjRiMDJiYmIwNjliNzI4M2VlZjc2MjQ5OTUxNmJkN2I5YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU3YmY5YjQ2NjZmMjY5YmNmODkyOTMxMzc3YTMzYjkwMzhkNmM4ZWFiZGEyZTgwMDE2ZmRhYjFhNWQxNDI5NjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7c0e54d58c84400dbff590cf61b32632",
+      "statement": "Talon's POSIX MCPConfigStore mediates one fixed configuration file with redacted reads, HMAC revisions, locking, validation, atomic writes, and reload scheduling; saved edits are active only after successful reload, while running work retains its prior capabilities.",
+      "evidence": [
+        {
+          "resource": "repo://libs/talon/deepagents_talon/mcp_config.py#L121-L263",
+          "version": "repo-lines-v1:sha256:4844055d343913e2eba08abefcbdeb5494b544b8b0196db1e930e2ae574d85c8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmYmE1NTQyMDFjYzFkMDE5YmJjYTE2NzJiYjNjYjI4NDQ5MjM3NjQyYmJhODA2NDI1YThjNmM4OTAxMzc5ZjQxIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI2ZjRiNDE1N2Y4Nzk3ODI3MGViMGZlMmJkMWI3YWY3NzRhMWY4ZTNjNmZhZGE1M2E2ZDg2ZWQ3OTI1Yzk2ZDFlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzOTk4MzdhZWYyMDYyMTQwMTEwNDI2MzM4MmQ1NzVlOGYyNzFlMjA0MTJhNzExZjY2NTViMjA1NTFjNGY0ODBkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI3OTdiOGE4OGU2M2E2NjRkMDNlNTc1NmFiYzhiYTE5MGE3MmVkYzQ1NTkzMDdmM2FmYjQyYTcxYWYzY2MzMTcxIn0"
+        },
+        {
+          "resource": "repo://libs/talon/deepagents_talon/runtime.py#L587-L619",
+          "version": "repo-lines-v1:sha256:3222767b52b52356d31c2ed32882c40796e8d49d4ec52d59fdf47549ed7a367c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1YjNlNTQxMmMzZjNiMzA0M2E3YWY0Y2E0ODBhOTIwY2Y1ZDk2NTM5NmVhZDAwYjg0MTg5Y2U1ZDBkZDI5MmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlZTEzODU1MTgxMmVmMTUxNTU0YTA4YzQxZmY1Y2QxNjk4OGU3MzgyYWUzNWM3OTJjNzExYTIxZDExNDZhYmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcxNDU5N2Y5ODMzYmFjYmJlMDAwZTU3MTNkMmZmZjAyNWI1ZTY1MTUzMDg5Mzk5MTBmNWI2MzhmMDllZmRiZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFmMjBmNzYzOTNlZmE3YWU1ZmFiNzlmZTYwNWE1MDhmMDIzYTJkYzQ0ZWZlNDI3MmY1MjdhNmEwODEyNDMwMjYifQ"
+        },
+        {
+          "resource": "repo://libs/talon/deepagents_talon/runtime.py#L629-L653",
+          "version": "repo-lines-v1:sha256:f1323880e3c4e7129bb2f1a2e83ea44c92732b8ded57a1d9a507273f783acc58:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlYjI4MzU2NGM0MTc5MzY3NjY2MjJhOGRiZTc1YmJlN2Q1N2RlM2E2YmFiZTIxYzY5YWJhYjUzMzFlYTlkYzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MjJjNDJjZDE5YzZkMDNkODA4YzQ1MjcyMDU1MjgyNWI3ZWExYzViNDkxYjIxODUxMWNhYzc0MTVjZjlkOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlY2EzOWQ4NWNmMTc5NDM5NmQ2ZTM0ZjEzYWI4NGYxZTE2YWZmNTU2MGY1OTVhMjNkNzc0NzIwNjNkY2YwYWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjExZWE2YzJmNjJjZjk4ODg4ZjE3ZDg0NDBiNmQ3OTM5NWEzMzMyZTg4ODA5ZjY1YjViYmJhOTAxYTgxMTg2ZTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_57a9ae01b41d4a4e95c2bb50ed2160c1",
+      "statement": "Talon tracing is opt-in, and when enabled sends LangSmith run metadata plus serialized inputs and outputs; model, MCP, search, and channel integrations are additional outbound destinations for conversation-derived data.",
+      "evidence": [
+        {
+          "resource": "repo://libs/talon/README.md#L362-L372",
+          "version": "repo-lines-v1:sha256:3a2e40b68dbd41a24fd8da3e6f663c9806c9626fcdc523ebb21b90d34f2399ed:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0YTJmN2Q5MWMzYTZhMmRmZjk2YzVhMGI0YzZlMDA0ZGEyZjBjYTdjMjFhNWE3MTk3OGE2YzZmNzYzOWM4ZDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlZDQ0Nzk1MDllOTdhNThmZDI3Mzc1ZGI5NDgzNDJmZmZlM2M2NzViZGU1ZThkY2Q1YWRmNTU5NjNkN2U2NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4NWJhYzE3OWIzM2M3MjQwNGViZWVhZGJjOGU1NGVhY2NhMmY0YWE5NzBiM2E5ZGI5Nzc1ZWQ3YTdlMjhjOWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVlZTk5ZjhlMjFkYmU2Yzc2YWIwMTAwNWUyYzBhZDVjMzUyMGY3ZGI1YTE3MDAxODM3YWY2MDliOTc5MmRmODUifQ"
+        },
+        {
+          "resource": "repo://libs/talon/README.md#L586-L600",
+          "version": "repo-lines-v1:sha256:adafdc7c3affa964b5c1f5da1707e908e7b0556b3ea62f79311b5dd50fb2849b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlhOGQ4YjJkOWU3OGE1MzdhN2M3OTk0ODQ0MTZjNzA0ZDAxNzhiYWU0Zjc2NmRmZGU2NDgzOWE0MTAxY2M4NDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1MTUyM2VlOTYwNzExYTRiNjQxZGE4ODRhNzkxY2FhOWJiZTJhZmNkODIxYjk3OWQ5NDQzZGNmYjViZTg3MmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMyMTQ0YTM4ODg3MDk0MTFlYzhlYjE0YjVlNzk2M2M0MGU3OTUzYjA0NWM4OTFjZTlmNzJhMWIzNzI4YzJkMDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkwYjY3NGI3NjliNzk2ZTMyNDUzMDU4YjgxYzhkMWI4ODIyNTMyZThjYmFhZjA5NWZlYjJhODFiNzYwZTcyMTcifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.4.2",
-    "at": "2026-09-09T08:05:37.706Z"
+    "at": "2026-09-13T08:05:04.998Z"
   }
 }

@@ -1,11 +1,8 @@
 ---
 type: architecture pattern
-title: Middleware Stack and Customization Boundaries
-description: How create_deep_agent assembles and filters the ordered middleware stacks for a main agent and its subagents. Covers profile exclusions, caller insertion and replacement, state boundaries, and the distinction between middleware and ordinary tools.
+title: SDK Middleware Stack
+description: How create_deep_agent assembles, orders, filters, and delegates through middleware for the main agent and subagents. Covers profile exclusions, request transformation, private state, context compaction, and extension safety boundaries.
 tags: [middleware, deepagents, agent-construction, harness-profile, subagents, tool-surface]
-verified:
-  - by: openwiki/0.4.2
-    at: 2026-09-08T08:05:55.853Z
 sources:
   - id: openwiki-source-68ae2141dbec1e0915410ac3
     resource: repo://libs/ARCHITECTURE.md
@@ -21,16 +18,21 @@ sources:
     resource: repo://libs/deepagents/deepagents/middleware/_tool_exclusion.py
   - id: openwiki-source-e51c4102234507d1529a2440
     resource: repo://libs/deepagents/deepagents/middleware/async_subagents.py
+  - id: openwiki-source-13b8cea81b8a29f0950cc836
+    resource: repo://libs/deepagents/deepagents/middleware/patch_tool_calls.py
   - id: openwiki-source-114a1c7a58992fa867a94ef0
     resource: repo://libs/deepagents/deepagents/middleware/subagents.py
   - id: openwiki-source-f763e99e439a1356866a7aa4
     resource: repo://libs/deepagents/deepagents/middleware/summarization.py
   - id: openwiki-source-454da083c2cc29febd156c7e
     resource: repo://libs/deepagents/tests/unit_tests/middleware/test_subagent_middleware_init.py
-generated: { by: "openwiki/0.4.2", at: "2026-09-08T08:05:55.853Z" }
+generated: { by: "openwiki/0.4.2", at: "2026-09-13T08:05:04.998Z" }
+verified:
+  - by: openwiki/0.4.2
+    at: 2026-09-13T08:05:04.998Z
 ---
 
-# Middleware Stack and Customization Boundaries
+# SDK Middleware Stack
 
 `create_deep_agent()` is a harness assembler, not a separate agent runtime. It resolves the model and applicable `HarnessProfile`, constructs ordered `AgentMiddleware`, and passes the final main stack to LangChain's `create_agent()`, which owns the model/tool loop. The passed-through graph options include the system prompt, tools, response format, schemas, checkpointing, store, debugging, name, and cache. See [SDK construction and execution](/openwiki/architecture/sdk-construction-execution.md) for the runtime boundary.
 
@@ -38,7 +40,7 @@ Middleware is the request-time extension boundary. A `wrap_model_call()` hook in
 
 ## Main-agent assembly
 
-Membership is conditional on inputs and the resolved profile. `skills`, subagent forms, memory, filesystem permissions, interrupt configuration, profile extras, installed provider integrations, and profile exclusions all affect the result. The flow below shows the verified ordering and the only caller customization decision points; optional entries are absent when their condition is unmet.
+Membership is conditional on inputs and the resolved profile. `skills`, subagent forms, memory, filesystem permissions, interrupt configuration, profile extras, installed provider integrations, and profile exclusions all affect the result. Optional entries below are absent when their condition is unmet.
 
 ```mermaid
 flowchart TD
@@ -52,7 +54,7 @@ flowchart TD
     State --> Agent["Pass stack to create_agent"]
 ```
 
-Diagram: verified main-stack assembly and the profile/caller customization points.
+Diagram: main-stack assembly and its profile and caller customization points.
 
 ### Stack order
 
@@ -71,9 +73,33 @@ The first profile-exclusion pass runs after the tail is assembled. Caller `middl
 
 The assembler also combines an explicit `state_schema` with middleware-contributed schemas, derives private state-field names, and assigns them to `SubAgentMiddleware`. This determines what ordinary synchronous delegation may carry across its state boundary.
 
-### Context-management role
+### Request transformation and recovery
 
-The default summarization component is not merely a prompt addition. It can truncate old large tool arguments, compact history when configured thresholds are crossed, and retry through compaction after `ContextOverflowError`. Evicted history is offloaded to the configured backend and a private summarization event records the replacement summary and recovery path; an offload failure warns that older messages are unrecoverable. Its factory selects model-aware thresholds when profile information is available. See [context management](/openwiki/concepts/context-management.md).
+`PatchToolCallsMiddleware.before_agent()` repairs persisted history before an agent run. For every `AIMessage` tool call or invalid tool call with an ID that has no matching tool result, it appends an error `ToolMessage`: malformed or truncated arguments are identified as unexecutable, while otherwise the result may have been cancelled or interrupted. This preserves the tool-call/result pairing expected by providers instead of replaying a dangling call.
+
+The default summarization component reconstructs effective history from its prior event, counts the request including system prompt and tools, and may truncate large old tool arguments before deciding whether to compact. The normal below-threshold path still sends one request with those truncated messages. Only a recognized provider context-overflow error switches that path to compaction; unrelated errors propagate.
+
+```mermaid
+flowchart TD
+    Effective["Reconstruct effective history"] --> Count["Count messages prompt and tools"]
+    Count --> Truncate["Truncate configured old tool arguments"]
+    Truncate --> Decision{"Threshold or budget exceeded"}
+    Decision -->|No| Normal["Send normal request"]
+    Normal --> Overflow{"Context overflow"}
+    Overflow -->|No| Response["Return model response"]
+    Overflow -->|Yes| Compact
+    Decision -->|Yes| Compact["Choose cutoff and partition history"]
+    Compact --> Cutoff{"Cutoff available"}
+    Cutoff -->|No| Budget["Call with budget recovery"]
+    Cutoff -->|Yes| Offload["Offload old history and media"]
+    Offload --> Summary["Create summary and replacement history"]
+    Summary --> Budget
+    Budget --> Result["Return response or raise overflow"]
+```
+
+Diagram: synchronous summarization control flow; the async hook follows the same decisions, offloading and summary generation concurrently after media handling.
+
+When compaction has a cutoff, older history is offloaded to the backend before it is summarized. The response carries a private `_summarization_event` containing the cumulative cutoff, replacement summary message, and history file path, plus the session ID; raw `state["messages"]` is not rewritten by this hook. If offload fails, compaction still proceeds with no path and emits a warning that older messages are unrecoverable. After compaction—or when no cutoff exists—budget recovery permits at most one smaller retry, including when the original request was already summarized. If the complete request remains irreducible, it raises `ContextOverflowError`. See [context management](/openwiki/concepts/context-management.md).
 
 ## Caller middleware and profile exclusions
 
@@ -121,4 +147,6 @@ An `AsyncSubAgent` runs through Agent Protocol as a background task. `AsyncSubAg
 
 ## Safe changes and focused tests
 
-Ordering changes alter what the model sees and what tools can execute. Test assembled stacks, not only middleware constructors. Focus tests on replacement versus insertion, both exclusion passes, final request/tool-call filtering, protected-scaffolding and ambiguous-name failures, and coverage across main and general-purpose stacks. Also test the separate declarative, compiled, async, isolated, and fork paths—especially private-state treatment, fork prompt/history construction, recursive-delegation refusal, and the structured-response fallback. The unit suite exercises middleware-provided filesystem and `task` tools; graph tests cover profile exclusion behavior and subagent stack assembly.
+Ordering changes alter what the model sees and what tools can execute. Test assembled stacks, not only middleware constructors. Focus tests on replacement versus insertion, both exclusion passes, final request/tool-call filtering, protected-scaffolding and ambiguous-name failures, and coverage across main and general-purpose stacks. Also test dangling-call repair and both summarization branches: a normal below-threshold request, recognized context overflow fallback, no-cutoff budget recovery, offload failure, and irreducible overflow.
+
+Test the separate declarative, compiled, async, isolated, and fork paths—especially private-state treatment, fork prompt/history construction, recursive-delegation refusal, and the structured-response fallback. The graph unit suite exercises profile exclusions, tool-exclusion placement, prompt-cache wiring, task-tool presence, and subagent stack assembly.
